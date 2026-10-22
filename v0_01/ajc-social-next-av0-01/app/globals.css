@@ -1,10 +1,26 @@
+/* ---------------------------------------------------------------------------
+   app/globals.css  (global styles)
+   ---------------------------------------------------------------------------
+   This file is imported once by the root layout and applies to every page.
+
+   The first line imports Tailwind CSS. This project uses Tailwind v4, whose
+   setup is a single `@import "tailwindcss";` &mdash; there is no separate
+   `tailwind.config.js` file like older versions used. Configuration that used
+   to live in that file now lives in CSS via the `@theme` block below.
+--------------------------------------------------------------------------- */
+
 @import "tailwindcss";
 
+/* Design tokens. CSS custom properties (variables) declared on `:root` are
+   available everywhere. We use them so colors can change in one place. */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+/* The `@theme inline` block tells Tailwind about our design tokens so its
+   utility classes can use them. For example, `bg-background` becomes a valid
+   utility, and `font-sans` resolves to the Geist font we loaded in layout.tsx. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,6 +28,8 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* When the user's OS is in dark mode, swap the base colors. Components also
+   use Tailwind's `dark:` variant (e.g. `dark:bg-black`) for fine control. */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,8 +37,10 @@
   }
 }
 
+/* Base body styles. `font-family` falls back through the Geist variable to
+   generic fonts in case the web font has not loaded yet. */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }

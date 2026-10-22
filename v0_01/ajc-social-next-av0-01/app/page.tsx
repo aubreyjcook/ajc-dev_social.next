@@ -1,69 +1,62 @@
-import Image from "next/image";
+// ---------------------------------------------------------------------------
+// app/page.tsx  (the home page, route "/")
+// ---------------------------------------------------------------------------
+// This is the landing page of the app. It shows a short intro and the feed of
+// posts. The feed is the heart of a social network, so even in this minimal
+// first version we make it real (with mock data) to establish the pattern.
+//
+// The page is an `async` Server Component. Server Components can be `async`
+// and `await` data *before* rendering, which is the idiomatic Next.js way to
+// load data. The data is fetched on the server, so it never has to round-trip
+// through a client-side fetch.
+// ---------------------------------------------------------------------------
 
-export default function Home() {
+import PostCard from "@/components/post-card";
+import { getFeed } from "@/lib/data";
+
+// `PageProps<"/">` is a globally generated helper type (no import). For this
+// static route it provides `params` (typed as an empty object) and
+// `searchParams`. We only use `params` for demonstration here; because we do
+// not read `searchParams`, the page remains fully static and can be
+// prerendered at build time.
+export default async function Home(props: PageProps<"/">) {
+  // Demonstrate that `params` exists and is empty for a static route.
+  // (A dynamic route like /u/[id] would carry `{ id: string }` here.)
+  void props.params;
+
+  // Ask the data layer for the feed. See lib/data.ts for the implementation.
+  const feed = await getFeed();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-10">
+      {/* A short hero section introducing the project. */}
+      <section className="flex flex-col gap-2">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          Your social network, starting here.
+        </h1>
+        <p className="max-w-2xl text-zinc-600 dark:text-zinc-400">
+          This is the first pre-release of a social networking site built with
+          Next.js. The feed below runs on in-memory sample data while the
+          foundation &mdash; structure, types, and documentation &mdash; comes
+          together.
+        </p>
+      </section>
+
+      {/* The feed. */}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+          Feed
+        </h2>
+
+        {feed.length === 0 ? (
+          // Empty state: shown if the data layer ever returns no posts.
+          <p className="text-zinc-500 dark:text-zinc-400">
+            Nothing here yet &mdash; check back soon.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        ) : (
+          feed.map((post) => <PostCard key={post.id} post={post} />)
+        )}
+      </section>
     </div>
   );
 }
